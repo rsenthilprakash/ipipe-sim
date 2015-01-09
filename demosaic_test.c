@@ -79,6 +79,8 @@ static void write_png_color(unsigned char *img_data, size_t width, size_t height
 
     free(row_pointers);
 
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+
     fclose(fp);
 }
 
@@ -223,7 +225,7 @@ int main(int argc, char *argv[])
 
     if (argc != 5) {
         printf("Usage:\n");
-        printf("%s <input raw file> <width> <hieght> <outout png file name>", argv[0]);
+        printf("%s <input raw file> <width> <hieght> <outout png file name>\n", argv[0]);
         return -1;
     }
 
