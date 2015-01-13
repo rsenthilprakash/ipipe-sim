@@ -11,6 +11,9 @@ int main(int argc, char *argv[])
     const char *out_file_name;
     unsigned char *in_img;
     unsigned char *out_img;
+    const double rgb2rgb_matrix[9] = {0.0, 0.0, 1.0,
+                                      0.0, 1.0, 0.0,
+                                      1.0, 0.0, 0.0};
 
     if (argc != 3) {
         printf("Usage:\n");
@@ -34,7 +37,7 @@ int main(int argc, char *argv[])
 
     out_img = malloc(width * height * 3);
 
-    color_convert_rgb2rgb(out_img, in_img, width, height);
+    color_convert_rgb2rgb(out_img, in_img, width, height, rgb2rgb_matrix);
 
     write_png_color(out_img, width, height, out_file_name);
 

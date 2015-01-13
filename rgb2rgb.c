@@ -1,16 +1,16 @@
 #include "rgb2rgb.h"
 
-void color_convert_rgb2rgb(unsigned char *out_img, const unsigned char *in_img, size_t width, size_t height)
+void color_convert_rgb2rgb(unsigned char *out_img, const unsigned char *in_img, size_t width, size_t height, const double *rgb2rgb_matrix)
 {
-    const double RR = 0.0;
-    const double RG = 0.0;
-    const double RB = 1.0;
-    const double GR = 0.0;
-    const double GG = 1.0;
-    const double GB = 0.0;
-    const double BR = 1.0;
-    const double BG = 0.0;
-    const double BB = 0.0;
+    const double RR = rgb2rgb_matrix[0];
+    const double RG = rgb2rgb_matrix[1];
+    const double RB = rgb2rgb_matrix[2];
+    const double GR = rgb2rgb_matrix[3];
+    const double GG = rgb2rgb_matrix[4];
+    const double GB = rgb2rgb_matrix[5];
+    const double BR = rgb2rgb_matrix[6];
+    const double BG = rgb2rgb_matrix[7];
+    const double BB = rgb2rgb_matrix[8];
 
     size_t i;
     size_t j;
