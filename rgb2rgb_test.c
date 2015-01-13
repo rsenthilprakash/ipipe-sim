@@ -21,12 +21,16 @@ int main(int argc, char *argv[])
     in_file_name = argv[1];
     out_file_name = argv[2];
 
-    in_img = alloc_and_read_png_color(&width, &height, in_file_name);
-
-    if (in_img == NULL)
-        return -1;
+    if (!validate_and_query_png_size(&width, &height, in_file_name)) {
+        printf("Unsupported png file %s\n", in_file_name);
+        return -2;
+    }
 
     printf("Input size: %u x %u\n", width, height);
+
+    in_img = malloc(width * height * 3);
+
+    read_png_color(in_img, width, height, in_file_name);
 
     out_img = malloc(width * height * 3);
 

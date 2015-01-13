@@ -1,3 +1,4 @@
+#include "png_utils.h"
 #include <png.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -14,21 +15,17 @@ static void abort_(const char * s, ...)
     abort();
 }
 
-unsigned char * alloc_and_read_png_color(size_t *out_width, size_t *out_height, const char *file_name)
+bool validate_and_query_png_size(size_t *img_width, size_t *img_height, const char *file_name)
 {
-    int i;
-    size_t width;
-    size_t height;
+    bool ret = true;
+    size_t width = -1;
+    size_t height = -1;
     png_byte color_type;
     png_byte bit_depth;
     png_structp png_ptr;
     png_infop info_ptr;
-    png_bytep * row_pointers;
     unsigned char header[8];    // 8 is the maximum size that can be checked
 
-    unsigned char *img_data = NULL;
-
-    /* open file and test for it being a png */
     FILE *fp = fopen(file_name, "rb");
     if (!fp)
         abort_("[read_png_file] File %s could not be opened for reading", file_name);
@@ -60,11 +57,54 @@ unsigned char * alloc_and_read_png_color(size_t *out_width, size_t *out_height, 
     color_type = png_get_color_type(png_ptr, info_ptr);
     bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
-    if (color_type != PNG_COLOR_TYPE_RGB || bit_depth != 8) {
-        printf("Unsupported png file\n");
-        goto END;
-    }
-    
+    if (color_type != PNG_COLOR_TYPE_RGB || bit_depth != 8)
+        ret = false;
+
+    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+    fclose(fp);
+
+    *img_width = width;
+    *img_height = height;
+
+    return ret;
+}
+
+void read_png_color(unsigned char *img_data, size_t width, size_t height, const char *file_name)
+{
+    int i;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    png_bytep * row_pointers;
+    unsigned char header[8];    // 8 is the maximum size that can be checked
+
+    FILE *fp = fopen(file_name, "rb");
+    if (!fp)
+        abort_("[read_png_color] File %s could not be opened for reading", file_name);
+
+    if (!img_data)
+        abort_("[read_png_color] NULL input buffer");
+    fread(header, 1, 8, fp);
+    if (png_sig_cmp(header, 0, 8))
+        abort_("[] File %s is not recognized as a PNG file", file_name);
+
+    /* initialize stuff */
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+    if (!png_ptr)
+        abort_("[%s] png_create_read_struct failed");
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr)
+        abort_("[read_png_file] png_create_info_struct failed");
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+        abort_("[read_png_file] Error during init_io");
+
+    png_init_io(png_ptr, fp);
+    png_set_sig_bytes(png_ptr, 8);
+
+    png_read_info(png_ptr, info_ptr);
+
     png_read_update_info(png_ptr, info_ptr);
 
     /* read file */
@@ -77,22 +117,14 @@ unsigned char * alloc_and_read_png_color(size_t *out_width, size_t *out_height, 
 
     png_read_image(png_ptr, row_pointers);
 
-    img_data = malloc(width * height * 3);
-
     for (i = 0; i < height; i++) {
         memcpy(img_data + (i * width * 3), row_pointers[i], width * 3);
         free(row_pointers[i]);
     }
     free(row_pointers);
 
-END:
     png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
     fclose(fp);
-
-    *out_width = width;
-    *out_height = height;
-    
-    return img_data;
 }
 
 void write_png_color(unsigned char *img_data, size_t width, size_t height, const char *file_name)
