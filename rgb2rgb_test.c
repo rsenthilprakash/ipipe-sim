@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     if (argc != 3) {
         printf("Usage:\n");
-        printf("%s <input png (rgb) file> <outout png file name>\n", argv[0]);
+        printf("%s <input png (rgb) file> <output png file name>\n", argv[0]);
         return -1;
     }
 

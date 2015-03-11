@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     if (argc != 5) {
         printf("Usage:\n");
-        printf("%s <input raw file> <width> <hieght> <outout png file name>\n", argv[0]);
+        printf("%s <input raw file> <width> <hieght> <output png file name>\n", argv[0]);
         return -1;
     }
 
