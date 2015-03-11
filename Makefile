@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -Werror
 PNG_CFLAGS = `pkg-config --cflags libpng`
 PNG_LIBS = `pkg-config --libs libpng`
 
@@ -8,9 +8,12 @@ SOURCES = png_utils.c \
           demosaic.c \
           rgb2rgb_test.c \
           rgb2rgb.c \
+          lpf_test.c \
+          lpf.c \
 
 TARGETS = demosaic_test \
           rgb2rgb_test \
+          lpf_test \
 
 .PHONY: all
 all: $(TARGETS)
@@ -19,6 +22,9 @@ demosaic_test: demosaic_test.o demosaic.o png_utils.o
 	$(CC) $^ $(PNG_LIBS) $(LIBS) -o $@
 
 rgb2rgb_test: rgb2rgb_test.o rgb2rgb.o png_utils.o
+	$(CC) $^ $(PNG_LIBS) $(LIBS) -o $@
+
+lpf_test: lpf_test.o lpf.o png_utils.o
 	$(CC) $^ $(PNG_LIBS) $(LIBS) -o $@
 
 .c.o:
